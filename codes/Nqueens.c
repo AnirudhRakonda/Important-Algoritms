@@ -1,10 +1,12 @@
 #include <stdio.h>
+#include <math.h>
 #include <stdlib.h>
+
 #define MAX 20
+int board[MAX][MAX]; 
+int x[MAX];          
 
-int board[MAX][MAX];
-
-void printSolution(int n) {
+void print(int n) {
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < n; j++) {
             printf("%c ", board[i][j] ? 'Q' : '.');
@@ -14,45 +16,43 @@ void printSolution(int n) {
     printf("\n");
 }
 
-int isSafe(int row, int col, int n) {
-    for (int i = 0; i < col; i++) {
-        if (board[row][i]) return 0;
-    }
-    for (int i = row, j = col; i >= 0 && j >= 0; i--, j--) {
-        if (board[i][j]) return 0;
-    }
-    for (int i = row, j = col; i < n && j >= 0; i++, j--) {
-        if (board[i][j]) return 0;
+int place(int k, int i) {
+    for (int j = 1; j < k; j++) { 
+        if (x[j] == i || abs(x[j] - i) == abs(j - k)) { 
+            return 0;
+        }
     }
     return 1;
 }
 
-int solveNQueen(int col, int n) {
-    if (col >= n) {
-        printSolution(n);
-        return 1;
-    }
-    int found = 0;
-    for (int i = 0; i < n; i++) {
-        if (isSafe(i, col, n)) {
-            board[i][col] = 1;
-            found = solveNQueen(col + 1, n) || found;
-            board[i][col] = 0;
+void Nqueen(int k, int n) {
+    for (int i = 1; i <= n; i++) {
+        if (place(k, i)) {           
+            x[k] = i;               
+            board[k - 1][i - 1] = 1;
+
+            if (k == n) {
+                print(n); 
+            } else {
+                Nqueen(k + 1, n); 
+            }
+
+            board[k - 1][i - 1] = 0;
         }
     }
-    return found;
 }
 
 int main() {
     int n;
-    printf("Enter the value of N: ");
+    printf("Enter number of queens (<20): ");
     scanf("%d", &n);
-    if (n < 1 || n > MAX) {
-        printf("Invalid value of N. Please enter a value between 1 and %d.\n", MAX);
-        return 1;
+
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            board[i][j] = 0; 
+        }
     }
-    if (!solveNQueen(0, n)) {
-        printf("No solution exists for %d queens.\n", n);
-    }
+
+    Nqueen(1, n); 
     return 0;
 }
